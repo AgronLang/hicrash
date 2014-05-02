@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+#create ibcker 2014 04 15
+
+crashFilePath = ARGV[0] #crashlog file path
+binaryFilePath = ARGV[1] #binary file path
+
+
+if crashFilePath.to_s=='' || crashFilePath=='-h' || crashFilePath=='-help'
+	puts '用于反解crashlog'
+	puts '> useage:'
+	puts '	    hicrashlog xxx.crash xxx.dYMS'	
+	puts '	 or hicrashlog xxx.crash xxx.app/xxx'
+exit
+end
+
+
+logUuid = `grep --after-context=1 "Binary Images:" #{crashFilePath} |tail -1|sed "s/.*<//"|sed "s/>.*//"`
+logUuid = logUuid.to_s.chomp()
+if logUuid.length<10
+	puts "Read CrashLog UUID ERROR :"+logUuid.to_s
+	exit
+end
+
+binaryUuid = `dwarfdump -u #{binaryFilePath}`
+binaryUuid=binaryUuid.to_s.gsub(/[-]/,'').downcase;
+
+if binaryUuid.length<10
+	puts "Read Binary UUID ERROR :"+binaryUuid.to_s
+	exit
+end
+
+if ! (binaryUuid.include?logUuid)
+	puts "UUID no match"
+	puts '-------------binary-------------'
+	puts binaryUuid
+	puts '------------crashlog-------------'
+	puts logUuid
+	exit
+end
+
+#p logUuid
+#p binaryUuid
+#exit
+
+File.open(crashFilePath) do |file|  
+file.each_line(){ |line| 
+#puts "#{line.dump}"
+reg = /0x[0-9a-f]{5,12} 0x[0-9a-f]{2,12} \+ [0-9]*/ 
+if reg.match(line.to_s) 
+	chips = line.split(' ')
+#	p chips
+	result = `atos -o #{binaryFilePath} -l #{chips[3]} #{chips[2]} 2>&1 |tail -1|sed "s/(in.*) (/(/"`
+#	p result
+	slc=''
+	if chips[0].to_i<10
+		slc='   '
+	else
+		slc='  '
+	end
+	
+	puts "#{chips[0]}#{slc}#{chips[1]}                    	#{chips[2]} #{result}"
+else
+	puts line
+end
+}  
+file.close();  
+end 
