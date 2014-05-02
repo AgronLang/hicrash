@@ -11,9 +11,9 @@ hicrash
 
 ##Usage
 
-	hicrashlog xxx.crash xxx.dYMS
+	hicrash xxx.crash xxx.dYMS
 	or 
-	hicrashlog xxx.crash xxx.app/xxx
+	hicrash xxx.crash xxx.app/xxx
 
 
 
