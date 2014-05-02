@@ -1,7 +1,8 @@
 hicrash
 =======
 
-A hlightweight symbolicatecras without dSYM file for iOS
+- A hlightweight symbolicatecras without dSYM file for iOS
+- 一个轻量级的解crashLog脚本，不依赖dSYM文件**
 
 
 ##Install
